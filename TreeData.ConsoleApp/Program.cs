@@ -31,7 +31,7 @@ namespace TreeData.ConsoleApp
 
         private static void ShowProgress(ILogger logger, FileSystemInspector.Progress progress)
         {
-            logger.LogInformation($"{progress.Path} : {progress.TotalDirectories:n0} directories, {progress.TotalFiles:n0} files");
+            logger.LogInformation($"{progress.Path} : {progress.CurrentDepth:n0} directories, {progress.CurrentFileCount:n0} files");
         }
 
         /// <summary>

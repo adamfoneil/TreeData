@@ -23,14 +23,16 @@ namespace TreeData.Library.Abstract
             });
 
             // drill into the entire folder structure with a recursive method
-            await InspectInnerAsync(cn, rootFolderId, path, progress);
+            await InspectInnerAsync(cn, rootFolderId, path, progress, 1, 0);
         }
 
-        private async Task InspectInnerAsync(SqlConnection cn, int parentFolderId, string path, IProgress<Progress> progress)
+        private async Task InspectInnerAsync(SqlConnection cn, int parentFolderId, string path, IProgress<Progress> progress, int dirCount, int fileCount)
         {
             progress.Report(new Progress()
             {
-                Path = path                
+                Path = path,
+                CurrentDepth = dirCount,
+                CurrentFileCount = fileCount
             });
 
             var directories = await GetDirectoriesAsync(path);
@@ -50,7 +52,7 @@ namespace TreeData.Library.Abstract
                 foreach (var file in files) await cn.MergeAsync(file);
 
                 // repeat this method on subfolders of this path
-                await InspectInnerAsync(cn, folderId, dir, progress);
+                await InspectInnerAsync(cn, folderId, dir, progress, dirCount + 1, fileCount + files.Count());
             }
         }
 
@@ -67,8 +69,8 @@ namespace TreeData.Library.Abstract
         public class Progress
         {
             public string Path { get; set; }
-            public int TotalDirectories { get; set; }
-            public int TotalFiles { get; set; }
+            public int CurrentDepth { get; set; }
+            public int CurrentFileCount { get; set; }
         }
     }
 }
