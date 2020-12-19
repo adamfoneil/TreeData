@@ -14,7 +14,7 @@ namespace TreeData.Library.Models
         public int FolderId { get; set; }
 
         [Key]
-        [MaxLength(100)]        
+        [MaxLength(255)]        
         public string Name { get; set; }
 
         public long Length { get; set; }
