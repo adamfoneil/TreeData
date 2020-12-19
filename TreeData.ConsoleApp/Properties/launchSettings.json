@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TreeData.ConsoleApp": {
+      "commandName": "Project",
+      "commandLineArgs": "\"C:\\Users\\adamo\\OneDrive\", \"C:\\Users\\adamo\\Source\\Repos\""
+    }
+  }
+}
