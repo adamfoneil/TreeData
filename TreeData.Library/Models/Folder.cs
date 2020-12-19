@@ -12,7 +12,7 @@ namespace TreeData.Library.Models
         public int ParentId { get; set; }
 
         [Key]
-        [MaxLength(50)]
+        [MaxLength(100)]
         public string Name { get; set; }
     }
 }

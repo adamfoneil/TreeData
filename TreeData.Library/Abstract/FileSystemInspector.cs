@@ -2,6 +2,8 @@
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using TreeData.Library.Models;
 
@@ -9,6 +11,8 @@ namespace TreeData.Library.Abstract
 {
     public abstract class FileSystemInspector
     {
+        protected abstract char PathSeparator { get; }
+
         public async Task InspectAsync(SqlConnection cn, string path, IProgress<Progress> progress)
         {
             // find or create the Folder.Id for the starting path
@@ -37,7 +41,7 @@ namespace TreeData.Library.Abstract
                 var folderId = await cn.MergeAsync(new Folder()
                 {
                     ParentId = parentFolderId,
-                    Name = dir
+                    Name = dir.Split(PathSeparator).Last()
                 });
 
                 var files = await GetFilesAsync(folderId, dir);
@@ -58,7 +62,7 @@ namespace TreeData.Library.Abstract
         /// <summary>
         /// gets the file info in the specified path (don't drill into sub folders)
         /// </summary>
-        protected abstract Task<IEnumerable<File>> GetFilesAsync(int parentFolderId, string path);        
+        protected abstract Task<IEnumerable<Models.File>> GetFilesAsync(int parentFolderId, string path);        
 
         public class Progress
         {

@@ -2,7 +2,7 @@
   "profiles": {
     "TreeData.ConsoleApp": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\Users\\adamo\\OneDrive\", \"C:\\Users\\adamo\\Source\\Repos\""
+      "commandLineArgs": "\"C:\\Users\\adamo\\OneDrive\\Pictures\" \"C:\\Users\\adamo\\Source\\Repos\" \"C:\\Users\\adamo\\OneDrive\\Music\""
     }
   }
 }

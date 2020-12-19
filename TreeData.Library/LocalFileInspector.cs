@@ -8,6 +8,8 @@ namespace TreeData.Library
 {
     public class LocalFileInspector : FileSystemInspector
     {
+        protected override char PathSeparator => '\\';
+
         protected override async Task<IEnumerable<string>> GetDirectoriesAsync(string path) 
             => await Task.FromResult(Directory.GetDirectories(path, "*", SearchOption.TopDirectoryOnly));
 
