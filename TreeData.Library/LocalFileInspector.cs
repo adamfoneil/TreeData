@@ -26,7 +26,7 @@ namespace TreeData.Library
             }
         }
 
-        protected override async Task<IEnumerable<Models.File>> GetFilesAsync(int parentFolderId, string path)
+        protected override async Task<IEnumerable<Models.File>> GetFilesAsync(string path)
         {
             try
             {
@@ -36,8 +36,7 @@ namespace TreeData.Library
                 {
                     var fileInfo = new FileInfo(fullPath);
                     return new Models.File()
-                    {
-                        FolderId = parentFolderId,
+                    {                        
                         Name = fileInfo.Name,
                         Length = fileInfo.Length,
                         DateCreated = fileInfo.CreationTime,
@@ -53,5 +52,10 @@ namespace TreeData.Library
                 return Enumerable.Empty<Models.File>();
             }
         }
+
+        // Local file inspector doesn't need special root folder naming because you always pass the root path explicitly.
+        // Inspecting blobs is different because the root folder name is derived from the account and container info
+        protected override string GetRootFolderName() => throw new NotImplementedException();
+
     }
 }

@@ -2,7 +2,6 @@
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using TreeData.Library.Models;
@@ -13,6 +12,12 @@ namespace TreeData.Library.Abstract
     {
         protected abstract char PathSeparator { get; }
 
+        protected abstract string GetRootFolderName();
+
+        protected virtual string GetRootPathName(string path) => path;
+
+        public async Task InspectAsync(SqlConnection cn, IProgress<Progress> progress) => await InspectAsync(cn, GetRootFolderName(), progress);
+        
         public async Task InspectAsync(SqlConnection cn, string path, IProgress<Progress> progress)
         {
             // find or create the Folder.Id for the starting path
@@ -22,8 +27,8 @@ namespace TreeData.Library.Abstract
                 Name = path
             });
 
-            // drill into the entire folder structure with a recursive method
-            await InspectInnerAsync(cn, rootFolderId, path, progress, 1, 0);
+            // drill into the entire folder structure with a recursive method            
+            await InspectInnerAsync(cn, rootFolderId, GetRootPathName(path), progress, 1, 0);
         }
 
         private async Task InspectInnerAsync(SqlConnection cn, int parentFolderId, string path, IProgress<Progress> progress, int dirCount, int fileCount)
@@ -35,23 +40,29 @@ namespace TreeData.Library.Abstract
                 CurrentFileCount = fileCount
             });
 
+            await OnInspectPathAsync(cn, path, parentFolderId);
+
             var directories = await GetDirectoriesAsync(path);
 
+            var files = await GetFilesAsync(path);
+
+            // add all these files to the database if they don't exist
+            foreach (var file in files)
+            {
+                file.FolderId = parentFolderId;
+                await cn.MergeAsync(file);
+            }            
+
+            // examine all the directories for *their* files
             foreach (var dir in directories)
             {
                 // find or create the folder Id for this subdirectory
                 var folderId = await cn.MergeAsync(new Folder()
                 {
                     ParentId = parentFolderId,
-                    Name = dir.Split(PathSeparator).Last()
+                    Name = dir.Split(new char[] { PathSeparator }, StringSplitOptions.RemoveEmptyEntries).Last()
                 });
-
-                var files = await GetFilesAsync(folderId, dir);
-
-                // add all these files to the database if they don't exist
-                foreach (var file in files) await cn.MergeAsync(file);
-
-                // repeat this method on subfolders of this path
+                
                 await InspectInnerAsync(cn, folderId, dir, progress, dirCount + 1, fileCount + files.Count());
             }
         }
@@ -64,7 +75,14 @@ namespace TreeData.Library.Abstract
         /// <summary>
         /// gets the file info in the specified path (don't drill into sub folders)
         /// </summary>
-        protected abstract Task<IEnumerable<Models.File>> GetFilesAsync(int parentFolderId, string path);        
+        protected abstract Task<IEnumerable<Models.File>> GetFilesAsync(string path);        
+
+        protected virtual async Task OnInspectPathAsync(SqlConnection cn, string path, int folderId)
+        {
+            // Do nothing by default, but override this to do something before fetching directories or files in a path.
+            // This turned out to be necessary for Azure blob inspection
+            await Task.CompletedTask;
+        }
 
         public class Progress
         {
