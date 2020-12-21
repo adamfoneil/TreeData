@@ -24,12 +24,11 @@ namespace TreeData.ConsoleApp
 
                 var progress = new Progress<FileSystemInspector.Progress>((progress) => ShowProgress(logger, progress));
 
-                
                 //before running, go to project properties, Debug, Application arguments to set which local folders are inspected
                 foreach (var path in args)
                 {
                     await new LocalFileInspector().InspectAsync(cn, path, progress);
-                }                
+                }
 
                 /*
                 await new StorageAccountInspector(
