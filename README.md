@@ -14,7 +14,10 @@ See my diagram at [dbdiagram.io](https://dbdiagram.io/d/5f5ec5c810a0a51c74d4da02
 ![img](https://adamosoftware.blob.core.windows.net/images/file-system.png)
 
 ## Query techniques
-I have some wiki topics on recursive CTEs and more
+The [Walkthrough.sql](https://github.com/adamfoneil/TreeData/blob/master/Sql/Walkthrough.sql) script shows the steps I went through building some folder queries. Notably, see
+
+- [FnFolderTree](https://github.com/adamfoneil/TreeData/blob/master/Sql/Walkthrough.sql#L19) function
+- Folder [rollup example](https://github.com/adamfoneil/TreeData/blob/master/Sql/Walkthrough.sql#L115)
 
 ## Data capture with `FileSystemInspector` abstract class
 I wanted to capture file system data both from local files and blob storage, but reuse the same data access code for both sources.
