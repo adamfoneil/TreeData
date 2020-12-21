@@ -15,15 +15,19 @@ namespace TreeData.Library
         {
             if (!Directory.Exists(path)) throw new DirectoryNotFoundException(path);
 
+            IEnumerable<string> result;
+
             try
             {
-                return await Task.FromResult(Directory.GetDirectories(path, "*", SearchOption.TopDirectoryOnly));
+                result = Directory.GetDirectories(path, "*", SearchOption.TopDirectoryOnly);
             }
             catch 
             {
                 // most likely a permission error
-                return Enumerable.Empty<string>();
+                result = Enumerable.Empty<string>();
             }
+
+            return await Task.FromResult(result);
         }
 
         protected override async Task<IEnumerable<Models.File>> GetFilesAsync(string path)

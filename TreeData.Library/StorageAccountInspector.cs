@@ -23,7 +23,7 @@ namespace TreeData.Library
             _client = new BlobContainerClient(connectionString, container);            
         }
 
-        protected override async Task OnInspectPathAsync(SqlConnection cn, string path, int folderId)
+        protected override async Task BeforeInspectPathAsync(SqlConnection cn, string path, int folderId)
         {
             var pages = _client.GetBlobsByHierarchyAsync(delimiter: PathSeparator.ToString(), prefix: path);
 

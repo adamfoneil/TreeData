@@ -40,7 +40,7 @@ namespace TreeData.Library.Abstract
                 CurrentFileCount = fileCount
             });
 
-            await OnInspectPathAsync(cn, path, parentFolderId);
+            await BeforeInspectPathAsync(cn, path, parentFolderId);
 
             var directories = await GetDirectoriesAsync(path);
 
@@ -80,7 +80,7 @@ namespace TreeData.Library.Abstract
         /// <summary>
         /// perform any tasks prior to inspecting directories and files (necessary for blob storage)
         /// </summary>
-        protected virtual async Task OnInspectPathAsync(SqlConnection cn, string path, int folderId)
+        protected virtual async Task BeforeInspectPathAsync(SqlConnection cn, string path, int folderId)
         {
             await Task.CompletedTask;
         }
