@@ -75,12 +75,13 @@ namespace TreeData.Library.Abstract
         /// <summary>
         /// gets the file info in the specified path (don't drill into sub folders)
         /// </summary>
-        protected abstract Task<IEnumerable<Models.File>> GetFilesAsync(string path);        
+        protected abstract Task<IEnumerable<File>> GetFilesAsync(string path);        
 
+        /// <summary>
+        /// perform any tasks prior to inspecting directories and files (necessary for blob storage)
+        /// </summary>
         protected virtual async Task OnInspectPathAsync(SqlConnection cn, string path, int folderId)
         {
-            // Do nothing by default, but override this to do something before fetching directories or files in a path.
-            // This turned out to be necessary for Azure blob inspection
             await Task.CompletedTask;
         }
 

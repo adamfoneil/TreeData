@@ -76,7 +76,7 @@ WHERE
 	[ParentId]=57125
 
 
--- 7b. folder names with total size in each folder
+-- 7b. folder names with total size in each folder (but without subfolders and without loose files)
 SELECT
 	[child].[Name], SUM([f].[Length]) AS [FolderSize]
 FROM
@@ -98,18 +98,18 @@ WITH [total] AS (
 	INNER JOIN [dbo].[FnFolderTree](@rootId) [tree] ON [f].[FolderId]=[tree].[Id]
 ), [detail] AS (
 	SELECT
-		[tree].[FolderName], SUM([f].[Length]) AS [FolderSize]
+		[tree].[FullPath], SUM([f].[Length]) AS [FolderSize]
 	FROM
 		[dbo].[FnFolderTree](@rootId) [tree]
 		INNER JOIN [dbo].[File] [f] ON [tree].[Id]=[f].[FolderId]
 	GROUP BY
-		[tree].[FolderName]
+		[tree].[FullPath]
 ) 
 SELECT 
 	[detail].*, [FolderSize] / CONVERT(float, [TotalSize]) AS [PercentOfTotal]
 FROM
 	[detail], [total]
--- whoops! this is every individual folder.... we want to collapse to immediate child folders
+-- whoops! this is every individual folder.... we want to collapse or rollup to immediate child folders
 
 
 -- 7d. collapse sums to immediate children of "Drone" folder
