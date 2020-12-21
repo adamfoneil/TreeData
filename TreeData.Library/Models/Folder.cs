@@ -1,5 +1,6 @@
 ﻿using AO.Models;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TreeData.Library.Models
 {
@@ -14,5 +15,8 @@ namespace TreeData.Library.Models
         [Key]
         [MaxLength(100)]
         public string Name { get; set; }
+
+        [NotMapped]
+        public bool HasChildren { get; set; }
     }
 }

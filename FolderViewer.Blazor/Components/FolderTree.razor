@@ -1,0 +1,30 @@
+﻿@inject DapperCX<int> Data
+@using FolderViewer.Blazor.Queries
+
+<ul>
+    @foreach (var dir in Folders)
+    {
+        <li>
+            <button data-toggle="collapse" data-target="#children-@dir.Id" type="button">@dir.Name</button>                
+            
+            <div class="collapse mb-3" id="children-@dir.Id">
+                <FolderTree ParentId="dir.Id"/>
+            </div>
+        </li>
+    }
+</ul>
+
+@code {
+    [Parameter]
+    public int ParentId { get; set; }
+
+    IEnumerable<Folder> Folders = Enumerable.Empty<Folder>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        Folders = await Data.QueryAsync(new ChildFolders() { ParentId = ParentId });
+    }
+
+} 

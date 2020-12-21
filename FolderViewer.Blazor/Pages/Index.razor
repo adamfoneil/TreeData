@@ -1,0 +1,65 @@
+﻿@page "/"
+@inject DapperCX<int> Data
+
+<div class="row">
+    <div class="col-4" style="overflow:auto;max-height: 95vh">
+        <RadzenTree Data="@RootFolders" Expand="OnExpand" Change="OnChange">
+            <RadzenTreeLevel TextProperty="Name" HasChildren="(e) => (e as Folder).HasChildren"/>
+        </RadzenTree>
+    </div>
+
+    <div class="col-8" style="overflow:auto;max-height:95vh">
+        @foreach (var folderGrp in Files.GroupBy(row => row.FolderId))
+        {
+            <h3>@folderGrp.First().FullPath</h3>
+            <table class="table">
+                <tr>
+                    <th>Name</th>
+                    <th>Length</th>
+                    <th>Created</th>
+                    <th>Modified</th>
+                </tr>
+                @foreach (var file in folderGrp)
+                {
+                    <tr>
+                        <td>@file.Name</td>
+                        <td>@file.Length</td>
+                        <td>@file.DateCreated</td>
+                        <td>@file.DateModified</td>
+                    </tr>
+                }
+            </table>
+        }
+    </div>
+</div>
+
+@code {
+    IEnumerable<Folder> RootFolders;
+
+    IEnumerable<FilesInAndBelowFolderResult> Files = Enumerable.Empty<FilesInAndBelowFolderResult>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+
+        RootFolders = await Data.QueryAsync(new ChildFolders() { ParentId = 0 });
+    }
+
+    async Task OnExpand(TreeExpandEventArgs args)
+    {
+        var folderId = (args.Value as Folder).Id;
+        var folders = await Data.QueryAsync(new ChildFolders() { ParentId = folderId });
+
+        args.Children.Data = folders;
+        args.Children.HasChildren = (row) => (row as Folder).HasChildren;
+        args.Children.TextProperty = "Name";
+    }
+
+    async Task OnChange(TreeEventArgs args)
+    {
+        var folderId = (args.Value as Folder).Id;
+
+        Files = await Data.QueryAsync(new FilesInAndBelowFolder() { FolderId = folderId });
+
+    }
+}

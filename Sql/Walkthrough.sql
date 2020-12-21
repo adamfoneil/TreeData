@@ -2,7 +2,7 @@
 SELECT * FROM [dbo].[Folder] WHERE [Name]='Drone';
 
 
--- 2. sample recursive query -- folders below "Drone", including "Drone"
+-- 2. sample recursive query -- folders below and including "Drone"
 WITH [tree] AS (
 	SELECT [Id], CAST([Name] AS nvarchar(max)) AS [FullPath], 0 AS [Depth]
 	FROM [dbo].[Folder]
@@ -21,7 +21,7 @@ ALTER FUNCTION [dbo].[FnFolderTree](
 ) RETURNS @results TABLE (
 	[Id] int NOT NULL,
 	[FullPath] nvarchar(max) NOT NULL,
-	[FolderName] nvarchar(50) NOT NULL,
+	[FolderName] nvarchar(100) NOT NULL,
 	[Depth] int NOT NULL
 ) AS
 BEGIN
