@@ -9,7 +9,7 @@ See my [Models](https://github.com/adamfoneil/TreeData/tree/master/TreeData.Libr
 
 These two classes serve both as a basis for data capture as well as SQL querying.
 
-See my diagram at [dbdiagram.io](https://dbdiagram.io/d/5f5ec5c810a0a51c74d4da02)
+See my diagram at [dbdiagram.io](https://dbdiagram.io/d/5f5ec5c810a0a51c74d4da02). This is a really nifty tool!
 
 ![img](https://adamosoftware.blob.core.windows.net/images/file-system.png)
 
