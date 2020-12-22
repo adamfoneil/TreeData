@@ -15,7 +15,8 @@ namespace FolderViewer.Blazor.Queries
             FROM 
                 [dbo].[Folder] [f]
             WHERE 
-                [ParentId]=@parentId 
+                [ParentId]=@parentId AND
+                NOT EXISTS(SELECT 1 FROM [dbo].[IgnoreFolder] WHERE [Name]=[f].[Name])
             ORDER BY 
                 [Name]")
         {                

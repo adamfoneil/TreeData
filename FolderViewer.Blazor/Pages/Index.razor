@@ -9,6 +9,8 @@
     </div>
 
     <div class="col-8" style="overflow:auto;max-height:95vh">
+        <p>folder id = <span>@SelectedFolderId</span></p>
+
         @foreach (var folderGrp in Files.GroupBy(row => row.FolderId))
         {
             <div class="my-3">
