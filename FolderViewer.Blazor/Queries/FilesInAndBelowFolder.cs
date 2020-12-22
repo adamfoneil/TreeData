@@ -25,7 +25,7 @@ namespace FolderViewer.Blazor.Queries
             INSERT INTO @ignore ([Id])
             SELECT [dir].[Id]
             FROM [dbo].[Folder] [dir]
-            INNER JOIN [dbo].[IgnoreFolder] [ig] ON [dir].[Name]=[ig].[Name]
+            INNER JOIN [dbo].[IgnoreFolder] [ig] ON [dir].[Name]=[ig].[Name];
 
             -- ignore children of those roots
             INSERT INTO @ignore ([Id])
@@ -33,7 +33,7 @@ namespace FolderViewer.Blazor.Queries
             FROM @ignore [ig]
             CROSS APPLY [dbo].[FnFolderTree]([ig].[Id]) [tree]
             WHERE NOT EXISTS(SELECT 1 FROM @ignore WHERE [Id]=[tree].[Id])
-            GROUP BY [tree].[Id]
+            GROUP BY [tree].[Id];
 
             SELECT 
                 [tree].[FullPath],    
