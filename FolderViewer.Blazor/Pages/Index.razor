@@ -12,11 +12,11 @@
         @foreach (var folderGrp in Files.GroupBy(row => row.FolderId))
         {
             <div class="my-3">
-                <button class="btn btn-secondary" data-toggle="collapse" data-target="#files-@folderGrp.Key" type="button">@folderGrp.First().FullPath</button>
+                <button class="btn btn-secondary mb-3" data-toggle="collapse" data-target="#files-@folderGrp.Key" type="button">@folderGrp.First().FullPath</button>
                 @{ 
-                    var collapseStyle = (folderGrp.Key != SelectedFolderId) ? "collapse" : string.Empty;
+                    var show = (folderGrp.Key == SelectedFolderId) ? "show" : string.Empty;
                 }
-                <div id="files-@folderGrp.Key" class="@collapseStyle mb-3">
+                <div id="files-@folderGrp.Key" class="collapse-in collapse @show mb-3">
                     <table class="table">
                         <tr>
                             <th>Name</th>
