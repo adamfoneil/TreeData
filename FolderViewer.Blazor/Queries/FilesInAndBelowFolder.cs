@@ -24,6 +24,7 @@ namespace FolderViewer.Blazor.Queries
                 [dbo].[File] [f]
                 INNER JOIN [dbo].[FnFolderTree](@folderId) [tree] ON [f].[FolderId]=[tree].[Id]
             ORDER BY
+                [tree].[FullPath],
                 [f].[Name]")
         {
         }

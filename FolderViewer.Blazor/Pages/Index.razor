@@ -11,24 +11,31 @@
     <div class="col-8" style="overflow:auto;max-height:95vh">
         @foreach (var folderGrp in Files.GroupBy(row => row.FolderId))
         {
-            <h3>@folderGrp.First().FullPath</h3>
-            <table class="table">
-                <tr>
-                    <th>Name</th>
-                    <th>Length</th>
-                    <th>Created</th>
-                    <th>Modified</th>
-                </tr>
-                @foreach (var file in folderGrp)
-                {
-                    <tr>
-                        <td>@file.Name</td>
-                        <td>@file.Length</td>
-                        <td>@file.DateCreated</td>
-                        <td>@file.DateModified</td>
-                    </tr>
+            <div class="my-3">
+                <button class="btn btn-secondary" data-toggle="collapse" data-target="#files-@folderGrp.Key" type="button">@folderGrp.First().FullPath</button>
+                @{ 
+                    var collapseStyle = (folderGrp.Key != SelectedFolderId) ? "collapse" : string.Empty;
                 }
-            </table>
+                <div id="files-@folderGrp.Key" class="@collapseStyle mb-3">
+                    <table class="table">
+                        <tr>
+                            <th>Name</th>
+                            <th>Length</th>
+                            <th>Created</th>
+                            <th>Modified</th>
+                        </tr>
+                        @foreach (var file in folderGrp)
+                        {
+                            <tr>
+                                <td>@file.Name</td>
+                                <td>@file.Length</td>
+                                <td>@file.DateCreated</td>
+                                <td>@file.DateModified</td>
+                            </tr>
+                        }
+                    </table>
+                </div>
+            </div>            
         }
     </div>
 </div>
@@ -37,6 +44,8 @@
     IEnumerable<Folder> RootFolders;
 
     IEnumerable<FilesInAndBelowFolderResult> Files = Enumerable.Empty<FilesInAndBelowFolderResult>();
+
+    int SelectedFolderId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -57,9 +66,7 @@
 
     async Task OnChange(TreeEventArgs args)
     {
-        var folderId = (args.Value as Folder).Id;
-
-        Files = await Data.QueryAsync(new FilesInAndBelowFolder() { FolderId = folderId });
-
+        SelectedFolderId = (args.Value as Folder).Id;
+        Files = await Data.QueryAsync(new FilesInAndBelowFolder() { FolderId = SelectedFolderId });
     }
 }
