@@ -124,7 +124,7 @@
     {
         SelectedFolderId = (args.Value as Folder).Id;
         CurrentFolder = await Data.GetAsync<Folder>(SelectedFolderId ?? 0);
-        FolderData = (await Data.QueryAsync(new FolderRollup() { ParentId = SelectedFolderId?? 0 })).ToDictionary(row => row.FolderId);
+        FolderData = (await Data.QueryAsync(new FolderRollup() { ParentId = SelectedFolderId ?? 0 })).ToDictionary(row => row.FolderId);
         Files = (await Data.QueryAsync(new FilesInAndBelowFolder() { FolderId = SelectedFolderId ?? 0, Depth = 1 })).ToLookup(row => row.FolderId);
     }
 
