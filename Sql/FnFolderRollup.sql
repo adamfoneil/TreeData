@@ -1,4 +1,4 @@
-CREATE FUNCTION [dbo].[FnFolderRollup](
+ALTER FUNCTION [dbo].[FnFolderRollup](
 	@folderId int
 ) RETURNS @results TABLE (
 	[FolderId] int NOT NULL,
@@ -55,3 +55,5 @@ SELECT * FROM [dbo].[FnFolderRollup](57125)
 
 
 SELECT * FROM [dbo].[FnFolderRollup](58152)
+
+SELECT * FROM [dbo].[FnFolderRollup](60342)
