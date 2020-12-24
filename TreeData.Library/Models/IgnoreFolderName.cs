@@ -1,9 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AO.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace TreeData.Library.Models
 {
+    [Identity(nameof(Id))]
     public class IgnoreFolderName
     {
+        public int Id { get; set; }
+
         [MaxLength(50)]
         [Key]
         public string Name { get; set; }
