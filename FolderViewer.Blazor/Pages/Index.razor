@@ -43,29 +43,29 @@
             <div class="my-3">
                 <div class="d-flex justify-content-between">
                     <div class="mb-3">
-                        <button class="btn btn-secondary" data-toggle="collapse" data-target="#files-@dir.Key" type="button">@dir.Value.Name</button>                    
-                        @if (dir.Key != SelectedFolderId)
+                        <button class="btn btn-secondary" data-toggle="collapse" data-target="#files-@dir.FolderId" type="button">@dir.Name</button>                    
+                        @if (dir.FolderId != SelectedFolderId)
                         {
-                            <a class="btn btn-secondary ml-2" href="?SelectedFolderId=@dir.Key">
+                            <a class="btn btn-secondary ml-2" href="?SelectedFolderId=@dir.FolderId">
                                 <span class="oi oi-chevron-left"></span>
                             </a>
                         }
                     </div>                                        
                     <div>
-                        <span>@dir.Value.FileCount file(s)</span>
+                        <span>@dir.FileCount file(s)</span>
                         <span> | </span>
-                        <span>@dir.Value.PercentOfTotal.ToString("p1")</span>
+                        <span>@dir.PercentOfTotal.ToString("p1")</span>
                         <span> | </span>
-                        <span>@Readable.FileSize(dir.Value.FolderSize)</span>
+                        <span>@Readable.FileSize(dir.FolderSize)</span>
                     </div>                    
                 </div>
 
                 @{ 
-                    var show = (dir.Key == SelectedFolderId) ? "show" : string.Empty;
+                    var show = (dir.FolderId == SelectedFolderId) ? "show" : string.Empty;
                 }
                 @if (Files != null)
                 {
-                    <div id="files-@dir.Key" class="collapse-in collapse @show mb-3">
+                    <div id="files-@dir.FolderId" class="collapse-in collapse @show mb-3">
                         <table class="table">
                             <tr>
                                 <th>Name</th>
@@ -73,7 +73,7 @@
                                 <th>Created</th>
                                 <th>Modified</th>
                             </tr>
-                            @foreach (var file in Files[dir.Key])
+                            @foreach (var file in Files[dir.FolderId])
                             {
                                 <tr>
                                     <td>@file.Name</td>
@@ -84,11 +84,11 @@
                             }
                         </table>
 
-                        @if (SubFolders[dir.Key].Any())
+                        @if (SubFolders[dir.FolderId].Any())
                         {
                             <ul class="nav">
                                 <li><span class="mr-3">Subfolders:</span></li>
-                                @foreach (var subdir in SubFolders[dir.Key])
+                                @foreach (var subdir in SubFolders[dir.FolderId])
                                 {
                                     <li>
                                         <button class="btn btn-sm btn-secondary mr-3" @onclick="@((args) => SelectedFolderId = subdir.Id)">@subdir.FolderName</button>
@@ -111,7 +111,7 @@
     Folder CurrentFolder;
     ILookup<int, FilesInAndBelowFolderResult> Files;
     ILookup<int, FolderTreeResult> SubFolders;
-    Dictionary<int, FolderRollupResult> FolderData = new Dictionary<int, FolderRollupResult>();
+    IEnumerable<FolderRollupResult> FolderData = Enumerable.Empty<FolderRollupResult>();
 
     [Parameter]
     public int? SelectedFolderId { get; set; }
@@ -137,7 +137,7 @@
     {
         SelectedFolderId = (args.Value as Folder).Id;
         CurrentFolder = await Data.GetAsync<Folder>(SelectedFolderId ?? 0);
-        FolderData = (await Data.QueryAsync(new FolderRollup() { ParentId = SelectedFolderId ?? 0 })).ToDictionary(row => row.FolderId);
+        FolderData = await Data.QueryAsync(new FolderRollup() { ParentId = SelectedFolderId ?? 0 });
         SubFolders = (await Data.QueryAsync(new FolderTree() { FolderId = SelectedFolderId ?? 0, Depth = 2 })).ToLookup(row => row.ParentId);
         Files = (await Data.QueryAsync(new FilesInAndBelowFolder() { FolderId = SelectedFolderId ?? 0, Depth = 1 })).ToLookup(row => row.FolderId);
     }
