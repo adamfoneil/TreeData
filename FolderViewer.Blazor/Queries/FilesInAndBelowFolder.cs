@@ -1,4 +1,5 @@
 ﻿using Dapper.QX;
+using Dapper.QX.Attributes;
 using System;
 
 namespace FolderViewer.Blazor.Queries
@@ -42,7 +43,7 @@ namespace FolderViewer.Blazor.Queries
                 [dbo].[File] [f]
                 INNER JOIN [dbo].[FnFolderTree](@folderId) [tree] ON [f].[FolderId]=[tree].[Id]	
             WHERE
-                NOT EXISTS(SELECT 1 FROM @ignore WHERE [Id]=[f].[FolderId])
+                NOT EXISTS(SELECT 1 FROM @ignore WHERE [Id]=[f].[FolderId]) {andWhere}                
             ORDER BY
                 [tree].[FullPath],
                 [f].[Name]")
@@ -50,5 +51,8 @@ namespace FolderViewer.Blazor.Queries
         }
 
         public int FolderId { get; set; }
+
+        [Where("[Depth]<=@depth")]
+        public int? Depth { get; set; }
     }
 }

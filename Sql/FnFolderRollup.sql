@@ -48,5 +48,6 @@ BEGIN
 
 	RETURN
 END
+GO
 
 SELECT * FROM [dbo].[FnFolderRollup](57125)

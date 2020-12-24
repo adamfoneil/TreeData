@@ -1,53 +1,88 @@
-﻿@page "/"
+﻿@page "/{SelectedFolderId:int?}"
 @inject DapperCX<int> Data
+@inject Readable Readable
 
 <div class="row">
-    <div class="col-4" style="overflow:auto;max-height: 95vh">
-        <RadzenTree Data="@RootFolders" Expand="OnExpand" Change="OnChange">
-            <RadzenTreeLevel TextProperty="Name" HasChildren="(e) => (e as Folder).HasChildren"/>
+    <div class="col-3" style="overflow:auto;max-height: 95vh">
+        <RadzenTree Data="@RootFolders" Expand="OnExpand" Change="OnChange" @ref="treeView">
+            <RadzenTreeLevel TextProperty="Name" HasChildren="(e) => (e as Folder).HasChildren" @ref="treeLevel" Selected="@(item => ((Folder)item).Id == SelectedFolderId)"/>
         </RadzenTree>
     </div>
 
-    <div class="col-8" style="overflow:auto;max-height:95vh">
-        <p>folder id = <span>@SelectedFolderId</span></p>
-
-        @foreach (var folderGrp in Files.GroupBy(row => row.FolderId))
+    <div class="col-9" style="overflow:auto;max-height:95vh">
+        <div class="d-flex justify-content-between">
+            <h3>@CurrentFolder?.FullName <span class="small text-muted">folder Id @SelectedFolderId</span></h3>
+            @if (SelectedFolderId.HasValue)
+            {
+                <button class="btn btn-primary" @onclick="NavUp">
+                    <span class="oi oi-chevron-top"></span>
+                </button>
+            }
+        </div>
+        
+        @foreach (var dir in FolderData)
         {
             <div class="my-3">
-                <button class="btn btn-secondary mb-3" data-toggle="collapse" data-target="#files-@folderGrp.Key" type="button">@folderGrp.First().FullPath</button>
-                @{ 
-                    var show = (folderGrp.Key == SelectedFolderId) ? "show" : string.Empty;
-                }
-                <div id="files-@folderGrp.Key" class="collapse-in collapse @show mb-3">
-                    <table class="table">
-                        <tr>
-                            <th>Name</th>
-                            <th>Length</th>
-                            <th>Created</th>
-                            <th>Modified</th>
-                        </tr>
-                        @foreach (var file in folderGrp)
+                <div class="d-flex justify-content-between">
+                    <div class="mb-3">
+                        <button class="btn btn-secondary" data-toggle="collapse" data-target="#files-@dir.Key" type="button">@dir.Value.Name</button>                    
+                        @if (dir.Key != SelectedFolderId)
                         {
-                            <tr>
-                                <td>@file.Name</td>
-                                <td>@file.Length</td>
-                                <td>@file.DateCreated</td>
-                                <td>@file.DateModified</td>
-                            </tr>
+                            <a class="btn btn-secondary ml-2" href="/?SelectedFolderId=@dir.Key">
+                                <span class="oi oi-chevron-left"></span>
+                            </a>
                         }
-                    </table>
+                    </div>                                        
+                    <div>
+                        <span>@dir.Value.FileCount file(s)</span>
+                        <span> | </span>
+                        <span>@dir.Value.PercentOfTotal.ToString("p1")</span>
+                        <span> | </span>
+                        <span>@Readable.FileSize(dir.Value.FolderSize)</span>
+                    </div>                    
                 </div>
-            </div>            
+
+                @{ 
+                    var show = (dir.Key == SelectedFolderId) ? "show" : string.Empty;
+                }
+                @if (Files != null)
+                {
+                    <div id="files-@dir.Key" class="collapse-in collapse @show mb-3">
+                        <table class="table">
+                            <tr>
+                                <th>Name</th>
+                                <th>Length</th>
+                                <th>Created</th>
+                                <th>Modified</th>
+                            </tr>
+                            @foreach (var file in Files[dir.Key])
+                            {
+                                <tr>
+                                    <td>@file.Name</td>
+                                    <td>@Readable.FileSize(file.Length)</td>
+                                    <td>@file.DateCreated</td>
+                                    <td>@file.DateModified</td>
+                                </tr>
+                            }
+                        </table>
+                    </div>
+                }
+            </div>
         }
     </div>
 </div>
 
 @code {
+    RadzenTree treeView;
+    RadzenTreeLevel treeLevel;
     IEnumerable<Folder> RootFolders;
 
-    IEnumerable<FilesInAndBelowFolderResult> Files = Enumerable.Empty<FilesInAndBelowFolderResult>();
+    Folder CurrentFolder;
+    ILookup<int, FilesInAndBelowFolderResult> Files;
+    Dictionary<int, FolderRollupResult> FolderData = new Dictionary<int, FolderRollupResult>();
 
-    int SelectedFolderId;
+    [Parameter]
+    public int? SelectedFolderId { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -69,6 +104,13 @@
     async Task OnChange(TreeEventArgs args)
     {
         SelectedFolderId = (args.Value as Folder).Id;
-        Files = await Data.QueryAsync(new FilesInAndBelowFolder() { FolderId = SelectedFolderId });
+        CurrentFolder = await Data.GetAsync<Folder>(SelectedFolderId ?? 0);
+        FolderData = (await Data.QueryAsync(new FolderRollup() { ParentId = SelectedFolderId?? 0 })).ToDictionary(row => row.FolderId);
+        Files = (await Data.QueryAsync(new FilesInAndBelowFolder() { FolderId = SelectedFolderId ?? 0, Depth = 1 })).ToLookup(row => row.FolderId);
+    }
+
+    async Task NavUp(MouseEventArgs args)
+    {
+        SelectedFolderId = CurrentFolder.ParentId;        
     }
 }

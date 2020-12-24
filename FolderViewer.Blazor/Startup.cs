@@ -28,6 +28,7 @@ namespace FolderViewer.Blazor
             var connectionString = Configuration.GetConnectionString("Default");
             services.AddDapperCX(connectionString, (value) => Convert.ToInt32(value));
             //services.AddScoped<AudioDBApiClient>();
+            services.AddSingleton<Readable>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
