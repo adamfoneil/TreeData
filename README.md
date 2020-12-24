@@ -3,6 +3,7 @@ This is the source for a PowerPoint I did on working with file system data in SQ
 - I'm using a parent/child table structure (not `hierarchyid`). More info about hiearchical data in SQL Server [here](https://docs.microsoft.com/en-us/sql/relational-databases/hierarchical-data-sql-server?view=sql-server-ver15)
 - This is an intro to recursive CTEs (common table expressions)
 - This is also an example of using abstract classes in C# to capture file system data from two sources: local files and Azure blob storage
+- Repo has a [Blazor Server app](https://github.com/adamfoneil/TreeData/tree/master/FolderViewer.Blazor) for demonstrating tree view features.
 
 ## Core Structure
 See my [Models](https://github.com/adamfoneil/TreeData/tree/master/TreeData.Library/Models) folder for the two important tables in use `Folder` and `File`.
