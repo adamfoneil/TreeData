@@ -20,7 +20,8 @@ BEGIN
 			CROSS APPLY [dbo].[FnFolderTree]([dir].[Id]) [subdirs]
 			INNER JOIN [dbo].[File] [f] ON [subdirs].[Id]=[f].[FolderId]
 		WHERE
-			[dir].[ParentId]=@folderId
+			[dir].[ParentId]=@folderId AND
+			NOT EXISTS(SELECT 1 FROM [dbo].[IgnoreFolder] WHERE [Name]=[dir].[Name])
 
 		UNION ALL
 
@@ -51,3 +52,6 @@ END
 GO
 
 SELECT * FROM [dbo].[FnFolderRollup](57125)
+
+
+SELECT * FROM [dbo].[FnFolderRollup](58152)

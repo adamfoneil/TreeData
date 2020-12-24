@@ -10,8 +10,7 @@
     </div>
 
     <div class="col-9" style="overflow:auto;max-height:95vh">
-        <div class="d-flex justify-content-between">
-            
+        <div class="d-flex justify-content-between">            
             @if (CurrentFolder != null)
             {
                 <ul class="breadcrumb">
@@ -84,6 +83,19 @@
                                 </tr>
                             }
                         </table>
+
+                        @if (SubFolders[dir.Key].Any())
+                        {
+                            <ul class="nav">
+                                <li><span class="mr-3">Subfolders:</span></li>
+                                @foreach (var subdir in SubFolders[dir.Key])
+                                {
+                                    <li>
+                                        <button class="btn btn-sm btn-secondary mr-3" @onclick="@((args) => SelectedFolderId = subdir.Id)">@subdir.FolderName</button>
+                                    </li>
+                                }
+                            </ul>
+                        }
                     </div>
                 }
             </div>
@@ -98,6 +110,7 @@
 
     Folder CurrentFolder;
     ILookup<int, FilesInAndBelowFolderResult> Files;
+    ILookup<int, FolderTreeResult> SubFolders;
     Dictionary<int, FolderRollupResult> FolderData = new Dictionary<int, FolderRollupResult>();
 
     [Parameter]
@@ -125,11 +138,12 @@
         SelectedFolderId = (args.Value as Folder).Id;
         CurrentFolder = await Data.GetAsync<Folder>(SelectedFolderId ?? 0);
         FolderData = (await Data.QueryAsync(new FolderRollup() { ParentId = SelectedFolderId ?? 0 })).ToDictionary(row => row.FolderId);
+        SubFolders = (await Data.QueryAsync(new FolderTree() { FolderId = SelectedFolderId ?? 0, Depth = 2 })).ToLookup(row => row.ParentId);
         Files = (await Data.QueryAsync(new FilesInAndBelowFolder() { FolderId = SelectedFolderId ?? 0, Depth = 1 })).ToLookup(row => row.FolderId);
     }
 
     async Task NavUp(MouseEventArgs args)
     {
-        SelectedFolderId = CurrentFolder.ParentId;        
+        SelectedFolderId = CurrentFolder.ParentId;
     }
 }
