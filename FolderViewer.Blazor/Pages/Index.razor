@@ -11,8 +11,27 @@
 
     <div class="col-9" style="overflow:auto;max-height:95vh">
         <div class="d-flex justify-content-between">
-            <h3>@CurrentFolder?.FullName <span class="small text-muted">folder Id @SelectedFolderId</span></h3>
-            @if (SelectedFolderId.HasValue)
+            
+            @if (CurrentFolder != null)
+            {
+                <ul class="breadcrumb">
+                    @foreach (var path in CurrentFolder.Paths)
+                    {
+                        <li class="breadcrumb-item">
+                            <a href="?SelectedFolderId=@path.Id" class="btn btn-sm btn-outline-info">@path.Name</a>
+                        </li>
+                    }
+                    <li>
+                        <span class="small text-muted ml-3">folder Id @SelectedFolderId</span>
+                    </li>
+                </ul>                
+            }
+            else
+            {
+                <span class="small text-muted">no folder selected</span>
+            }
+
+            @if ((CurrentFolder?.ParentId ?? 0) != 0)
             {
                 <button class="btn btn-primary" @onclick="NavUp">
                     <span class="oi oi-chevron-top"></span>
@@ -28,7 +47,7 @@
                         <button class="btn btn-secondary" data-toggle="collapse" data-target="#files-@dir.Key" type="button">@dir.Value.Name</button>                    
                         @if (dir.Key != SelectedFolderId)
                         {
-                            <a class="btn btn-secondary ml-2" href="/?SelectedFolderId=@dir.Key">
+                            <a class="btn btn-secondary ml-2" href="?SelectedFolderId=@dir.Key">
                                 <span class="oi oi-chevron-left"></span>
                             </a>
                         }
