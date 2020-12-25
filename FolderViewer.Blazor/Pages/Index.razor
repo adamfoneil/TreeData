@@ -1,4 +1,4 @@
-﻿@page "/{SelectedFolderId:int?}"
+﻿@page "/"
 @inject DapperCX<int> Data
 @inject Readable Readable
 
@@ -17,7 +17,7 @@
                     @foreach (var path in CurrentFolder.Paths)
                     {
                         <li class="breadcrumb-item">
-                            <a href="?SelectedFolderId=@path.Id" class="btn btn-sm btn-outline-info">@path.Name</a>
+                            <a @onclick="@(async (args) => await LoadFolderAsync(path.Id))" class="btn btn-sm btn-outline-info">@path.Name</a>
                         </li>
                     }
                     <li>
@@ -32,7 +32,7 @@
 
             @if ((CurrentFolder?.ParentId ?? 0) != 0)
             {
-                <button class="btn btn-primary" @onclick="NavUp">
+                <button class="btn btn-primary" @onclick="@(async (args) => await LoadFolderAsync(CurrentFolder.ParentId))">
                     <span class="oi oi-chevron-top"></span>
                 </button>
             }
@@ -46,7 +46,7 @@
                         <button class="btn btn-secondary" data-toggle="collapse" data-target="#files-@dir.FolderId" type="button">@dir.Name</button>                    
                         @if (dir.FolderId != SelectedFolderId)
                         {
-                            <a class="btn btn-secondary ml-2" href="?SelectedFolderId=@dir.FolderId">
+                            <a class="btn btn-secondary ml-2" @onclick="@(async (args) => await LoadFolderAsync(dir.FolderId))">
                                 <span class="oi oi-chevron-left"></span>
                             </a>
                         }
@@ -91,7 +91,7 @@
                                 @foreach (var subdir in SubFolders[dir.FolderId])
                                 {
                                     <li>
-                                        <button class="btn btn-sm btn-secondary mr-3" @onclick="@((args) => SelectedFolderId = subdir.Id)">@subdir.FolderName</button>
+                                        <button class="btn btn-sm btn-secondary mr-3" @onclick="@(async (args) => await LoadFolderAsync(subdir.Id))">@subdir.FolderName</button>
                                     </li>
                                 }
                             </ul>
@@ -113,8 +113,7 @@
     ILookup<int, FolderTreeResult> SubFolders;
     IEnumerable<FolderRollupResult> FolderData = Enumerable.Empty<FolderRollupResult>();
 
-    [Parameter]
-    public int? SelectedFolderId { get; set; }
+    int SelectedFolderId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -135,15 +134,16 @@
 
     async Task OnChange(TreeEventArgs args)
     {
-        SelectedFolderId = (args.Value as Folder).Id;
-        CurrentFolder = await Data.GetAsync<Folder>(SelectedFolderId ?? 0);
-        FolderData = await Data.QueryAsync(new FolderRollup() { ParentId = SelectedFolderId ?? 0 });
-        SubFolders = (await Data.QueryAsync(new FolderTree() { FolderId = SelectedFolderId ?? 0, Depth = 2 })).ToLookup(row => row.ParentId);
-        Files = (await Data.QueryAsync(new FilesInAndBelowFolder() { FolderId = SelectedFolderId ?? 0, Depth = 1 })).ToLookup(row => row.FolderId);
+        int folderId = (args.Value as Folder).Id;
+        await LoadFolderAsync(folderId);
     }
 
-    async Task NavUp(MouseEventArgs args)
+    async Task LoadFolderAsync(int folderId)
     {
-        SelectedFolderId = CurrentFolder.ParentId;
-    }
+        SelectedFolderId = folderId;
+        CurrentFolder = await Data.GetAsync<Folder>(SelectedFolderId);
+        FolderData = await Data.QueryAsync(new FolderRollup() { ParentId = SelectedFolderId });
+        SubFolders = (await Data.QueryAsync(new FolderTree() { FolderId = SelectedFolderId, Depth = 2 })).ToLookup(row => row.ParentId);
+        Files = (await Data.QueryAsync(new FilesInAndBelowFolder() { FolderId = SelectedFolderId, Depth = 1 })).ToLookup(row => row.FolderId);
+    } 
 }
