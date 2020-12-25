@@ -15,10 +15,15 @@ See my diagram at [dbdiagram.io](https://dbdiagram.io/d/5f5ec5c810a0a51c74d4da02
 ![img](https://adamosoftware.blob.core.windows.net/images/file-system.png)
 
 ## Query techniques
-The [Walkthrough.sql](https://github.com/adamfoneil/TreeData/blob/master/Sql/Walkthrough.sql) script shows the steps I went through building some folder queries. Notably, see
+My query approach revolves around several table functions found in the [Sql](https://github.com/adamfoneil/TreeData/tree/master/Sql) directory:
 
-- [FnFolderTree](https://github.com/adamfoneil/TreeData/blob/master/Sql/Walkthrough.sql#L19) function
-- Folder [rollup example](https://github.com/adamfoneil/TreeData/blob/master/Sql/Walkthrough.sql#L115)
+- [FnFolderRollup.sql](https://github.com/adamfoneil/TreeData/blob/master/Sql/FnFolderRollup.sql) provides the sizes of folders directly below a given `folderId` along with the percent of total size of each folder. This is executed in the Blazor app [here](https://github.com/adamfoneil/TreeData/blob/master/FolderViewer.Blazor/Pages/Index.razor#L145) and integrated into the markup [here](https://github.com/adamfoneil/TreeData/blob/master/FolderViewer.Blazor/Pages/Index.razor#L41).
+- [FnFolderTree.sql](https://github.com/adamfoneil/TreeData/blob/master/Sql/FnFolderTree.sql) is a low-level function that returns the entire folder structure below a given `folderId`. This is used within several other functions.
+- [FnIgnoreFoldersAll.sql](https://github.com/adamfoneil/TreeData/blob/master/Sql/FnIgnoreFoldersAll.sql) returns all the folder structures that start with an explicitly ignore folder (such as `.git` and `packages` -- see the [IgnoreFolderName](https://github.com/adamfoneil/TreeData/blob/master/TreeData.Library/Models/IgnoreFolderName.cs) model class). This function is not used because it doesn't return unique folder Ids.
+- [FnIgnoreFoldersUnique.sql](https://github.com/adamfoneil/TreeData/blob/master/Sql/FnIgnoreFoldersUnique.sql) is similar to `IgnoreFoldersAll` but is assured to return unique folder Ids.
+- [FnPath.sql](https://github.com/adamfoneil/TreeData/blob/master/Sql/FnPath.sql) is used to get the containing folder names of a given `folderId`. It's recursive query that goes up instead of down. This is used to build the [breadcrumb navigation](https://github.com/adamfoneil/TreeData/blob/master/FolderViewer.Blazor/Pages/Index.razor#L16), and is retrieved as part of [Folder.GetRelatedAsync](https://github.com/adamfoneil/TreeData/blob/master/TreeData.Library/Models/Folder.cs#L37) so that it's automatically fetched any time an individual folder is [retrieved](https://github.com/adamfoneil/TreeData/blob/master/FolderViewer.Blazor/Pages/Index.razor#L144).
+- [Walkthrough.sql](https://github.com/adamfoneil/TreeData/blob/master/Sql/Walkthrough.sql) was just a scratchpad of sorts I used early on.
+
 
 ## Data capture with `FileSystemInspector` abstract class
 I wanted to capture file system data both from local files and blob storage, but reuse the same data access code for both sources.
