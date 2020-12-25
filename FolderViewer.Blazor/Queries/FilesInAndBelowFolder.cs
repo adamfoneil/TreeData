@@ -22,19 +22,8 @@ namespace FolderViewer.Blazor.Queries
                 [Id] int PRIMARY KEY
             );
 
-            -- ignore root items
             INSERT INTO @ignore ([Id])
-            SELECT [dir].[Id]
-            FROM [dbo].[Folder] [dir]
-            INNER JOIN [dbo].[IgnoreFolder] [ig] ON [dir].[Name]=[ig].[Name];
-
-            -- ignore children of those roots
-            INSERT INTO @ignore ([Id])
-            SELECT [tree].[Id]
-            FROM @ignore [ig]
-            CROSS APPLY [dbo].[FnFolderTree]([ig].[Id]) [tree]
-            WHERE NOT EXISTS(SELECT 1 FROM @ignore WHERE [Id]=[tree].[Id])
-            GROUP BY [tree].[Id];
+            SELECT [Id] FROM [dbo].[FnIgnoreFoldersUnique]()
 
             SELECT 
                 [tree].[FullPath],    
