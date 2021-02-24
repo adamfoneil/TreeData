@@ -1,4 +1,4 @@
-This is the source for a PowerPoint I did on working with file system data in SQL Server. This aimed at those familiar with C# and SQL Server and who are looking for ideas on how to work with hiearchical file system data.
+This is the source for a [PowerPoint](https://1drv.ms/v/s!AvguHRnyJtWMme5LJlU1FGxjmQCcqA?e=ZBg5o0) I did on working with file system data in SQL Server. This aimed at those familiar with C# and SQL Server and who are looking for ideas on how to work with hiearchical file system data.
 
 - I'm using a parent/child table structure (not `hierarchyid`). More info about hiearchical data in SQL Server [here](https://docs.microsoft.com/en-us/sql/relational-databases/hierarchical-data-sql-server?view=sql-server-ver15)
 - This is an intro to recursive CTEs (common table expressions)
